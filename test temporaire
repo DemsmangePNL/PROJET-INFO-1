@@ -1,0 +1,174 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include<conio.h>
+#define SIZE 19
+#define WALLS 10
+#include"plateau.h"
+
+typedef struct {
+    int row, col; // Player's position
+    int walls;    // Remaining walls
+} Player;
+
+void initializeBoard(char board[SIZE][SIZE], Player *p1, Player *p2);
+void displayBoard(char board[SIZE][SIZE], Player *p1, Player *p2);
+void moveP1(Player *player, char direction, char board[SIZE][SIZE]);
+void moveP2(Player *player, char direction, char board[SIZE][SIZE]);
+
+
+int main() {
+    char board[SIZE][SIZE];
+    Player p1 = {1, 9, WALLS};  // Player 1 starts near the bottom
+    Player p2 = {17, 9, WALLS};   // Player 2 starts near the top
+
+    initializeBoard(board, &p1, &p2);
+
+    while (1) {
+        displayBoard(board, &p1, &p2);
+
+        char move;
+        printf("\n");
+        printf("\033[34;01mPlayer 1 \033[00m move (H/B/G/D for movement, or 'q' to quit): ");
+        scanf(" %c", &move);
+        if (move == 'q') break;
+        moveP1(&p1, move, board);
+
+        displayBoard(board, &p1, &p2);
+        printf("\n");
+        printf("\033[0;32mPlayer 2 \033[00m move (H/B/G/D for movement, or 'q' to quit): ");
+        scanf(" %c", &move);
+        if (move == 'q') break;
+        moveP2(&p2, move, board);
+    }
+    return 0;
+}
+
+void initializeBoard(char board[SIZE][SIZE], Player *p1, Player *p2) {
+    // Initialize the board grid with spaces and walls
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+            if (i % 2 == 0 && j % 2 == 0) board[i][j] = 'O'; // Intersection points
+            else if (i % 2 == 0) board[i][j] = '-'; // Horizontal wall spaces
+            else if (j % 2 == 0) board[i][j] = '|'; // Vertical wall spaces
+            else board[i][j] = ' '; // Open spaces for player movement
+        }
+    }
+    // Place players on the board
+    board[1][9] = '1'; // Player 1
+    board[17][9] = '2'; // Player 2
+}
+
+void displayBoard(char board[SIZE][SIZE], Player *p1, Player *p2) {
+    printf("Player 1 walls: %d\tPlayer 2 walls: %d\n", p1->walls, p2->walls);
+    printf("\n");
+    printf("    ");
+    for (int j = 0; j < SIZE - 3; j ++) {
+        printf("%d", j);
+        printf(" ");// Column labels (1, 2, ...)
+    }
+    printf("\n");
+
+    for (int i = 0; i < SIZE; i++) {
+        printf("%d  ", i);
+        printf("");
+        if (i<10)printf(" ");// Row labels (1, 2, ...)
+        for (int j = 0; j < SIZE; j++) {
+            printf("%c ", board[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+void moveP1(Player *player, char direction, char board[SIZE][SIZE]) {
+    int coord1_x = -1, coord1_y = -1, i, j;
+    system("cls");
+    // Recherche la position de '1' sur le plateau
+    for (i = 0; i < SIZE; i++) {
+        for (j = 0; j < SIZE; j++) {
+            if (board[i][j] == '1') {
+                coord1_x = i;
+                coord1_y = j;
+                board[i][j] = ' ';  // Efface la position actuelle de '1'
+                break;
+            }
+        }
+        if (coord1_x != -1) break;
+    }
+
+    // Vérifie que la position de '1' a été trouvée
+    if (coord1_x == -1 || coord1_y == -1) {
+        printf("Erreur : position de Player 1 non trouvée sur le plateau.\n");
+        return;
+    }
+
+    // Mise à jour des coordonnées en fonction de la direction
+    if (direction == 'G' && coord1_y >= 1) {  // Gauche
+        coord1_y -= 2;
+    } else if (direction == 'D' && coord1_y < SIZE - 1) {  // Droite
+        coord1_y += 2;
+    } else if (direction == 'H' && coord1_x >= 1) {  // Haut
+        coord1_x -= 2;
+    } else if (direction == 'B' && coord1_x < SIZE - 1) {  // Bas
+        coord1_x += 2;
+    } else {
+        printf("Déplacement non valide.\n");
+        return;
+    }
+
+    // Place '1' à la nouvelle position
+    board[coord1_x][coord1_y] = '1';
+}
+void moveP2(Player *player, char direction, char board[SIZE][SIZE]) {
+    int coord2_x = -1, coord2_y = -1, i, j;
+    system("cls");
+    // Recherche la position de '1' sur le plateau
+    for (i = 0; i < SIZE; i++) {
+        for (j = 0; j < SIZE; j++) {
+            if (board[i][j] == '2') {
+                coord2_x = i;
+                coord2_y = j;
+                board[i][j] = ' ';  // Efface la position actuelle de '1'
+                break;
+            }
+        }
+        if (coord2_x != -1) break;
+    }
+
+    // Vérifie que la position de '1' a été trouvée
+    if (coord2_x == -1 || coord2_y == -1) {
+        printf("Erreur : position de Player 1 non trouvée sur le plateau.\n");
+        return;
+    }
+
+    // Mise à jour des coordonnées en fonction de la direction
+    if (direction == 'G' && coord2_y >= 1) {  // Gauche
+        coord2_y -= 2;
+    } else if (direction == 'D' && coord2_y < SIZE - 1) {  // Droite
+        coord2_y += 2;
+    } else if (direction == 'H' && coord2_x >= 1) {  // Haut
+        coord2_x -= 2;
+    } else if (direction == 'B' && coord2_x < SIZE - 1) {  // Bas
+        coord2_x += 2;
+    } else {
+        printf("Déplacement non valide.\n");
+        return;
+    }
+
+    // Place '1' à la nouvelle position
+    board[coord2_x][coord2_y] = '2';
+}
+
+//fonction recupérer coordonnées à appeler dans le main et dans le moov player
+
+    // Remove the player from the current position
+    //board[player->row][player->col] = ' ';
+
+    // Update the player's position based on the direction
+    //if (direction == 'w' && player->row > 1) player->row -= 2; // Up
+    //else if (direction == 's' && player->row < SIZE - 2) player->row += 2; // Down
+    //else if (direction == 'a' && player->col > 1) player->col -= 2; // Left
+    //else if (direction == 'd' && player->col < SIZE - 2) player->col += 2; // Right
+
+    // Place the player at the new position
+    //board[player->row][player->col] = (player == &player[0]) ? '1' : '2';
+
