@@ -14,10 +14,14 @@ void initializeBoard(char board[SIZE][SIZE], Player *p1, Player *p2);
 void displayBoard(char board[SIZE][SIZE], Player *p1, Player *p2);
 void moveP1(Player *player, char direction, char board[SIZE][SIZE]);
 void moveP2(Player *player, char direction, char board[SIZE][SIZE]);
-
+void placemurs(char board[SIZE][SIZE],char murs[60] );
 
 int main() {
     char board[SIZE][SIZE];
+    int murs[60];
+    for (int i = 0; i < 60; i++) {
+        murs[i] = 'X';
+    }
     Player p1 = {1, 9, WALLS};  // Player 1 starts near the bottom
     Player p2 = {17, 9, WALLS};   // Player 2 starts near the top
 
@@ -28,16 +32,18 @@ int main() {
 
         char move;
         printf("\n");
-        printf("\033[34;01mPlayer 1 \033[00m move (H/B/G/D for movement, or 'q' to quit): ");
+        printf("\033[34;01mPlayer 1 \033[00m move (H/B/G/D pour un mouvement, or 'M' pour placer un Mur): ");
         scanf(" %c", &move);
         if (move == 'q') break;
         moveP1(&p1, move, board);
 
         displayBoard(board, &p1, &p2);
         printf("\n");
-        printf("\033[0;32mPlayer 2 \033[00m move (H/B/G/D for movement, or 'q' to quit): ");
+        printf("\033[0;32mPlayer 2 \033[00m move (H/B/G/D pour un mouvement, or 'M' pour placer un Mur): ");
         scanf(" %c", &move);
-        if (move == 'q') break;
+        if (move == 'M') {
+            placemurs(board,murs);
+        }
         moveP2(&p2, move, board);
     }
     return 0;
@@ -157,6 +163,72 @@ void moveP2(Player *player, char direction, char board[SIZE][SIZE]) {
     // Place '1' à la nouvelle position
     board[coord2_x][coord2_y] = '2';
 }
+void placemurs(char board[SIZE][SIZE], char murs[60]) {
+    int choix, a, b, c;
+
+    printf("=== PLACEMENT D'UN MUR ===\n");
+    printf("Voulez-vous placer un mur vertical ou horizontal ?\n");
+    printf("1 : Mur horizontal\n");
+    printf("2 : Mur vertical\n");
+    scanf("%d", &choix);
+
+    switch (choix) {
+        case 1: // Mur horizontal
+            printf("Entrez les coordonnées du mur (ligne et deux colonnes adjacentes) :\n");
+            scanf("%d %d %d", &a, &b, &c);
+
+            // Vérifier que l'emplacement est valide
+            if (board[a][b] == '°' || board[a][c] == '°') {
+                printf("Placement invalide : un mur est déjà présent à cet endroit.\n");
+                break;
+            }
+
+            // Placer le mur horizontal
+            board[a][b] = '°';
+            board[a][c] = '°';
+
+            // Marquer les murs dans le tableau des murs
+            for (int i = 0; i < 60; i++) {
+                if (murs[i] == 'X') {
+                    murs[i] = b;
+                    murs[++i] = c;
+                    break;
+                }
+            }
+            printf("Mur horizontal placé avec succès !\n");
+            break;
+
+        case 2: // Mur vertical
+            printf("Entrez les coordonnées du mur (deux lignes adjacentes et une colonne) :\n");
+            scanf("%d %d %d", &a, &b, &c);
+
+            // Vérifier que l'emplacement est valide
+            if (board[a][c] == '°' || board[b][c] == '°') {
+                printf("Placement invalide : un mur est déjà présent à cet endroit.\n");
+                break;
+            }
+
+            // Placer le mur vertical
+            board[a][c] = '°';
+            board[b][c] = '°';
+
+            // Marquer les murs dans le tableau des murs
+            for (int i = 0; i < 60; i++) {
+                if (murs[i] == 'X') {
+                    murs[i] = a;
+                    murs[++i] = b;
+                    break;
+                }
+            }
+            printf("Mur vertical placé avec succès !\n");
+            break;
+
+        default:
+            printf("Choix invalide. Veuillez sélectionner 1 ou 2.\n");
+            break;
+    }
+}
+
 
 //fonction recupérer coordonnées à appeler dans le main et dans le moov player
 
@@ -171,4 +243,6 @@ void moveP2(Player *player, char direction, char board[SIZE][SIZE]) {
 
     // Place the player at the new position
     //board[player->row][player->col] = (player == &player[0]) ? '1' : '2';
+
+
 
